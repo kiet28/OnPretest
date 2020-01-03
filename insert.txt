@@ -1,0 +1,120 @@
+///////////////Controller
+public ActionResult AddNewSach()
+        {
+            var loaisach = new LoaiSachDAO();
+            ViewBag.loaisach = loaisach.LayDL();
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult AddNewSach(string maSach, string tenSach, string tacGia, string soTrang, string loaiSach, string gia, string tomtat, string maLoai, HttpPostedFileBase image)
+        {
+            string fileName = Path.GetFileName(image.FileName);
+            string path = Path.Combine(Server.MapPath("~/Image"), fileName);
+            var newsach = new SACH();
+            newsach.MASACH = maSach;
+            newsach.TENSACH = tenSach;
+            newsach.TACGIA = tacGia;
+            newsach.SOTRANG = Int32.Parse(soTrang);
+            newsach.GIA = Int32.Parse(gia);
+            newsach.MALOAI = loaiSach;
+            newsach.TOMTAT = tomtat;
+            newsach.HINH = fileName;
+            bool insert = new SachDAO().Insert(newsach);
+            if(insert == true)
+            {
+                image.SaveAs(path);
+            }
+            return RedirectToAction("Index");
+        }
+        
+ ////////////_Layout
+              <body>
+              <div class="header">
+                  <div class="header-left">
+                      <img alt="logo" src="~/Image/nxbtrelogo.png">
+                  </div>
+                  <div class="header-right">
+                      <img src="~/Image/nxbtrevn.png">
+                      <ul>
+                          <li><a href="/">Danh Sách</a></li>
+                          <li><a href="/them">Thêm mới</a></li>
+                          <li><a href="/quanly">Chức năng quản lý</a></li>
+                      </ul>
+                  </div>
+              </div>
+              <hr />
+              <div class="container">
+                  @RenderBody()
+              </div>
+              <hr />
+              <div class="footer">
+                  <h5>2019 Nhà Xuất Bản Trẻ. All Rights Reserved</h5>
+              </div>
+            </body>
+            
+  /////////////////SachDAO
+                public bool Insert(SACH s)
+                      {
+                          db.SACHes.Add(s);
+                          db.SaveChanges();
+                          return true;
+                      }
+                      
+ //////////////////AddNewBook.cshtml
+                   <!DOCTYPE html>
+                  <html>
+                  <body>
+                      @using (Html.BeginForm("AddNewSach", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                      {
+                          <div class="form-group">
+                              <label>Mã sách</label>
+                              <input name="maSach" class="form-control"/>
+                          </div>
+
+                          <div class="form-group">
+                              <label>Tên sách</label>
+                              <input name="tenSach" class="form-control" />
+                          </div>
+
+                          <div class="form-group">
+                              <label>Tác Giả</label>
+                              <input name="tacGia" class="form-control" />
+                          </div>
+                          <div class="form-group">
+                              <label>Số Trang</label>
+                              <input name="soTrang" class="form-control" />
+                          </div>
+                          <div class="form-group">
+                              <label>Giá</label>
+                              <input name="gia" class="form-control" />
+                          </div>
+
+                          <div class="form-group">
+                              <label>Loại sách</label>
+                              <select name="loaiSach" class="form-group">
+                                  @foreach (var i in listloaisach)
+                                  {
+                                          <option value="@i.MALOAISACH">@i.TENLOAI</option>
+                                  }
+                              </select>
+                          </div>
+                          <div class="form-group">
+                              <label>Tóm Tắt</label>
+                              <input name="tomTat" class="form-control" />
+                          </div>
+                          <div class="form-group">
+                              <label>Hình</label>
+                              <input type="file" name="image" class="form-control" />
+                          </div>
+                          <div>
+                              <div class="form-group">
+                                  <button type="submit" class="btn-dark btn">Thêm mới</button>
+                              </div>
+                          </div>
+                      }
+                      <div>
+                          @Html.ActionLink("Back to List", "Index")
+                      </div>
+                  </body>
+                  </html>
